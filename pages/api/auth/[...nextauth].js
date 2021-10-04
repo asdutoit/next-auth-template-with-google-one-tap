@@ -95,21 +95,26 @@ export default async function auth(req, res) {
             throw new Error("Email not available");
           }
 
+          console.log(process.env.MONGODB_DB);
+
           // Let's check on our DB if the user exists
           const { client } = await connectToDatabase();
           const db = await client.db(process.env.MONGODB_DB);
-          const user = await db.collection("users").find({ email }).toArray();
+          let user = await db.collection("users").find({ email }).toArray();
 
           console.log("user", user);
 
           // If there's no user, we need to create it
           if (!user || user.length < 1) {
-            user = await db.collection("users").insertOne({
-              name: [given_name, family_name].join(" "),
-              email,
-              image,
-              emailVerified: email_verified ? new Date() : undefined,
-            });
+            user = await db
+              .collection("users")
+              .insertOne({
+                name: [given_name, family_name].join(" "),
+                email,
+                image,
+                emailVerified: email_verified ? new Date() : undefined,
+              })
+              .toArray();
           }
 
           console.log("user", user);
@@ -134,7 +139,7 @@ export default async function auth(req, res) {
             });
           }
           // We can finally returned the retrieved or created user
-          return user;
+          return user[0];
         },
       }),
     ],

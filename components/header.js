@@ -7,20 +7,25 @@ import useOneTapSignin from "../hooks/useOneTapSignIn";
 // component that works on pages which support both client and server side
 // rendering, and avoids any flash incorrect content on initial page load.
 export default function Header() {
-  const [session, loading] = useSession();
+  const [session, loading, status] = useSession();
   const { isLoading: oneTapIsLoading, isSignedIn } = useOneTapSignin({
     redirect: false,
     parentContainerId: "oneTap",
   });
 
   console.log("isSignedIn", isSignedIn);
-  console.log("oneTapIsLoading", oneTapIsLoading);
 
   return (
     <header>
       <noscript>
         <style>{`.nojs-show { opacity: 1; top: 0; }`}</style>
       </noscript>
+      {!isSignedIn ? (
+        <div
+          id="oneTap"
+          style={{ position: "absolute", top: "50", right: "0" }}
+        />
+      ) : null}
       <div
         id="oneTap"
         style={{ position: "absolute", top: "50", right: "0" }}

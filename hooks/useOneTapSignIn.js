@@ -2,10 +2,16 @@ import { useEffect, useState } from "react";
 import { useSession, signIn, SignInOptions } from "next-auth/client";
 
 const useOneTapSignin = (opt) => {
-  const { status } = useSession();
-  const isSignedIn = status === "authenticated";
+  const [session, loading] = useSession();
   const { parentContainerId } = opt || {};
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    if (session) {
+      setIsSignedIn(true);
+    }
+  }, [session]);
 
   useEffect(() => {
     if (!isLoading && !isSignedIn) {
@@ -45,7 +51,7 @@ const useOneTapSignin = (opt) => {
         });
       }
     }
-  }, [isLoading, isSignedIn, parentContainerId]);
+  }, [isLoading, session, parentContainerId]);
 
   return { isLoading, isSignedIn };
 };
