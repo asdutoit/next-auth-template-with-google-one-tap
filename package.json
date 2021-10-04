@@ -20,6 +20,8 @@
   ],
   "license": "ISC",
   "dependencies": {
+    "google-auth-library": "^7.10.0",
+    "mongodb": "^3.7.1",
     "next": "^11.0.0",
     "next-auth": "latest",
     "react": "^17.0.2",
