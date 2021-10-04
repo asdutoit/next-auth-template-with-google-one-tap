@@ -89,35 +89,29 @@ export default async function auth(req, res) {
             email_verified,
             picture: image,
           } = payload;
-          console.log("SUB", sub, email);
+
           // If for some reason the email is not provided, we cannot login the user with this method
           if (!email) {
             throw new Error("Email not available");
           }
 
-          console.log(process.env.MONGODB_DB);
-
           // Let's check on our DB if the user exists
           const { client } = await connectToDatabase();
           const db = await client.db(process.env.MONGODB_DB);
-          let user = await db.collection("users").find({ email }).toArray();
+          let user = await db.collection("users").findOne({ email });
 
-          console.log("user", user);
-
+          console.log("Found user", user);
+          let newuser;
           // If there's no user, we need to create it
           if (!user || user.length < 1) {
-            user = await db
-              .collection("users")
-              .insertOne({
-                name: [given_name, family_name].join(" "),
-                email,
-                image,
-                emailVerified: email_verified ? new Date() : undefined,
-              })
-              .toArray();
+            newuser = await db.collection("users").insertOne({
+              name: [given_name, family_name].join(" "),
+              email,
+              image,
+              emailVerified: email_verified ? new Date() : undefined,
+            });
+            user = newuser.ops[0];
           }
-
-          console.log("user", user);
 
           // Let's also retrieve any account for the user from the DB, if any
           const account = await db
@@ -139,7 +133,7 @@ export default async function auth(req, res) {
             });
           }
           // We can finally returned the retrieved or created user
-          return user[0];
+          return user;
         },
       }),
     ],
